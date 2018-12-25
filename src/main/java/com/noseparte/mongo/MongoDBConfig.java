@@ -1,7 +1,6 @@
 package com.noseparte.mongo;
 
 import com.mongodb.MongoClientSettings;
-import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -9,10 +8,8 @@ import com.mongodb.client.MongoDatabase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +26,8 @@ import java.util.List;
 @Configuration
 public class MongoDBConfig {
 
-
-    @Value("${spring.data.mongodb.host}")
-    public String IP;
-    @Value("${spring.data.mongodb.port}")
-    public Integer PORT;
+    @Autowired
+    private MongoConstant mongoConstant;
 
     public static MongoClient client = null;
 //    public static MongoDatabase database = null;
@@ -52,7 +46,7 @@ public class MongoDBConfig {
     public void getMongoConn() {
         try {
             // Mongo服务的地址 类似JDBC (Java DataBase Connectivity)
-            serverAddress = new ServerAddress(IP, PORT);
+            serverAddress = new ServerAddress(mongoConstant.getHost(), mongoConstant.getPort());
             serverAddresses.add(serverAddress);
             // MongoCredential 连接mongo的凭证,需注意password为{ final char[] password }
 //			client = new MongoClient(serverAddresses);
