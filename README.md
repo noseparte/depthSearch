@@ -20,3 +20,11 @@
    ~~~
    1. Webmagic network spider(webmagic网络爬虫)
    ~~~
+   
+   Update on 2018/12/27 at 11:46
+   ~~~
+   1. Webmagic network spider(webmagic网络爬虫)
+      NationalGeographyPageProcessor    Processor抓取页面
+      NationalGeographyPipeline         抓取网页数据，入库mongodb
+      NationalGeographyRepo             pojo
+   ~~~
