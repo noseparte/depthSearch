@@ -27,4 +27,11 @@
       NationalGeographyPageProcessor    Processor抓取页面
       NationalGeographyPipeline         抓取网页数据，入库mongodb
       NationalGeographyRepo             pojo
+   ~~~ 
+   
+   Update on 2018/12/27 at 21:05
+   ~~~
+   1. Crawling national geographic data(爬取国家地理数据)
+   2. code optimization Extract common part injection Service(抽取公共部分 Service注入)
+   3. Integrated reids (集成redis)   
    ~~~

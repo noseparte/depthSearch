@@ -37,14 +37,17 @@ import java.nio.file.FileSystems;
 public class LuceneIndexesFactory {
 
     public static String INDEX_PATH = "";
+    public static String GEOGRAPHY_INDEX_PATH = "";
 
     /** 分配lucene索引库的磁盘地址*/
     static {
         String os_name = System.getProperty("os.name");
         if (os_name.toLowerCase().equals("win")) {
             INDEX_PATH = "D:\\data\\lucene\\lucene-db";
+			GEOGRAPHY_INDEX_PATH = "D:\\data\\lucene\\lucene-geography-db";
         }else
             INDEX_PATH = "/data/lucene/lucene-db";
+			GEOGRAPHY_INDEX_PATH = "/data/lucene/lucene-geography-db";
     }
 
     @Autowired
@@ -95,12 +98,52 @@ public class LuceneIndexesFactory {
 		}
     }
 
-	public static IndexSearcher init() throws IOException {
+	@Scheduled(cron = "0 0/5 * * * ? ")
+    public void updateGeographyIndex(){
+    	IndexWriter indexWriter = null;
+    	try {
+    		Directory directory = FSDirectory.open(FileSystems.getDefault().getPath(GEOGRAPHY_INDEX_PATH));
+    		// 根据空格和符号来完成分词，还可以完成数字、字母、E-mail地址、IP地址以及中文字符的分析处理，还可以支持过滤词表，用来代替StopAnalyzer能够实现的过滤功能。
+            //Analyzer analyzer = new StandardAnalyzer();
+    		// 实现了以词典为基础的正反向全切分，以及正反向最大匹配切分两种方法。IKAnalyzer是第三方实现的分词器，继承自Lucene的Analyzer类，针对中文文本进行处理。
+			Analyzer analyzer = new IKAnalyzer(true);
+			IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
+			indexWriterConfig.setRAMBufferSizeMB(16.0);
+			indexWriter = new IndexWriter(directory, indexWriterConfig);
+			long deleteCount = indexWriter.deleteAll();	// 清除以前的索引
+			log.info("索引库清除完毕，清除数量为,deleteCount,{}",deleteCount);
+
+            MongoDatabase database = mongoDBConfig.getDatabase("depth-search");
+            MongoCollection<Document> collection = database.getCollection("mg_national_geography_repo");
+			FindIterable<Document> Documents = collection.find();
+			for(Document cursor : Documents) {
+                org.apache.lucene.document.Document document = new org.apache.lucene.document.Document();
+				document.add(new Field("id", cursor.getObjectId("_id").toString(), TextField.TYPE_STORED));
+				document.add(new Field("scenery", cursor.getString("scenery"), TextField.TYPE_STORED));
+				document.add(new Field("geography", cursor.getString("geography"), TextField.TYPE_STORED));
+				document.add(new Field("title", cursor.getString("title"), TextField.TYPE_STORED));
+				document.add(new Field("author", cursor.getString("author"), TextField.TYPE_STORED));
+				indexWriter.addDocument(document);
+			}
+		} catch (Exception e) {
+			log.error("创建索引失败。 errorMsg,{}",e.getMessage());
+		} finally {
+			try {
+				if (null != indexWriter) {
+					indexWriter.close();
+				}
+			} catch (Exception ex) {
+				log.error("索引流关闭失败,error,{}",ex.getMessage());
+			}
+		}
+    }
+
+	public static IndexSearcher init(String path) throws IOException {
 		IndexSearcher indexSearcher =null;
 		AnalyzingInfixSuggester suggester =null;
 		if(indexSearcher == null) {
 			// 1、创建Directory
-			Directory directory = FSDirectory.open(FileSystems.getDefault().getPath(INDEX_PATH));
+			Directory directory = FSDirectory.open(FileSystems.getDefault().getPath(path));
 			// 2、创建IndexReader
 			DirectoryReader directoryReader = DirectoryReader.open(directory);
 			// 3、根据IndexReader创建IndexSearch

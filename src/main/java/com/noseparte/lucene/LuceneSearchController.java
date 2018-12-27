@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -48,7 +49,7 @@ public class LuceneSearchController extends BaseController {
             // MultiFieldQueryParser表示多个域解析， 同时可以解析含空格的字符串，如果我们搜索"上海 中国"
             Query multiFieldQuery = MultiFieldQueryParser.parse(keyword, fields, clauses, analyzer);
             // 5、根据searcher搜索并且返回TopDocs
-            IndexSearcher indexSearcher = LuceneIndexesFactory.init();
+            IndexSearcher indexSearcher = LuceneIndexesFactory.init(LuceneIndexesFactory.INDEX_PATH);
             // 5、根据searcher搜索并且返回TopDocs
             TopDocs topDocs = indexSearcher.search(multiFieldQuery, 100);
             log.info("共找到的匹配处: hitsCount,{}",topDocs.totalHits);
@@ -67,6 +68,58 @@ public class LuceneSearchController extends BaseController {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("id",id);
                 jsonObject.put("playerId",playerId);
+                result.add(jsonObject.toString());
+            }
+            return getResponse().success(result);
+        }catch (Exception e){
+            log.error("检索失败, 异常原因：errorMsg,{}",e.getMessage());
+            return getResponse().failure(e.getMessage());
+        }
+    }
+
+    @PostMapping("/searchGeo")
+    public Response retrievalGeo(@RequestParam("keyword") String keyword){
+        log.info("本次检索的关键词为：keyword,{} ========= ",keyword);
+        List<String> result = new ArrayList<>();
+        try{
+            Analyzer analyzer = new IKAnalyzer(true);
+            // 简单的查询，创建Query表示搜索域为content包含keyWord的文档
+            //Query query = new QueryParser("content", analyzer).parse(keyWord);
+            String[] fields = {"scenery","geography","title","author"};
+            // MUST 表示and，MUST_NOT 表示not ，SHOULD表示or
+            BooleanClause.Occur[] clauses = {BooleanClause.Occur.SHOULD};
+            // MultiFieldQueryParser表示多个域解析， 同时可以解析含空格的字符串，如果我们搜索"上海 中国"
+            Query multiFieldQuery = MultiFieldQueryParser.parse(keyword, fields, clauses, analyzer);
+            // 5、根据searcher搜索并且返回TopDocs
+            IndexSearcher indexSearcher = LuceneIndexesFactory.init(LuceneIndexesFactory.GEOGRAPHY_INDEX_PATH);
+            // 5、根据searcher搜索并且返回TopDocs
+            TopDocs topDocs = indexSearcher.search(multiFieldQuery, 100);
+            log.info("共找到的匹配处: hitsCount,{}",topDocs.totalHits);
+            // 6、根据TopDocs获取ScoreDoc对象
+            ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+            log.info("共找到文档的匹配数：docLength,{}",scoreDocs.length);
+            QueryScorer scorer = new QueryScorer(multiFieldQuery,"content");
+            SimpleHTMLFormatter htmlFormatter = new SimpleHTMLFormatter("<span style=\"color:red\">","</span>");
+            Highlighter highlighter = new Highlighter(htmlFormatter, scorer);
+            highlighter.setTextFragmenter(new SimpleSpanFragmenter(scorer));
+            for(ScoreDoc scoreDoc : scoreDocs){
+                // 7、根据searcher和ScoreDoc对象获取具体的Document对象
+                Document document = indexSearcher.doc(scoreDoc.doc);
+                String id = document.get("id");
+                String scenery = document.get("scenery");
+                String geography = document.get("geography");
+                String link = document.get("link");
+                String title = document.get("title");
+                String author = document.get("author");
+                String authorUrl = document.get("authorUrl");
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("id",id);
+                jsonObject.put("scenery",scenery);
+                jsonObject.put("geography",geography);
+                jsonObject.put("link",link);
+                jsonObject.put("title",title);
+                jsonObject.put("author",author);
+                jsonObject.put("authorUrl",authorUrl);
                 result.add(jsonObject.toString());
             }
             return getResponse().success(result);
