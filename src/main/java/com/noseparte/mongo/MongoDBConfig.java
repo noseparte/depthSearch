@@ -7,27 +7,26 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyright © 2018 noseparte © BeiJing BoLuo Network Technology Co. Ltd.
- *
- * @Author Noseparte
- * @Compile 2018-12-20 -- 17:06
- * @Version 1.0
- * @Description
- */
-@Slf4j
-@Configuration
-public class MongoDBConfig {
+    /**
+     * Copyright © 2018 noseparte © BeiJing BoLuo Network Technology Co. Ltd.
+     *
+     * @Author Noseparte
+     * @Compile 2018-12-20 -- 17:06
+     * @Version 1.0
+     * @Description
+     */
+    @Slf4j
+    @Configuration
+    public class MongoDBConfig {
 
-    @Autowired
-    private MongoConstant mongoConstant;
+        @Autowired
+        private MongoConstant mongoConstant;
 
     public static MongoClient client = null;
 //    public static MongoDatabase database = null;

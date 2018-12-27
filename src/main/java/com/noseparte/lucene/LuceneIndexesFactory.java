@@ -73,7 +73,7 @@ public class LuceneIndexesFactory {
 			long deleteCount = indexWriter.deleteAll();	// 清除以前的索引
 			log.info("索引库清除完毕，清除数量为,deleteCount,{}",deleteCount);
 
-             MongoDatabase database = mongoDBConfig.getDatabase("h5wx_login_server");
+            MongoDatabase database = mongoDBConfig.getDatabase("h5wx_login_server");
             MongoCollection<Document> collection = database.getCollection("player_tree_node_info");
 			FindIterable<Document> Documents = collection.find();
 			for(Document cursor : Documents) {

@@ -17,6 +17,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<lucene.version>7.5.0</lucene.version>
+		<us.codecraft.version>0.6.1</us.codecraft.version>
 	</properties>
 
 	<dependencies>
@@ -132,12 +133,12 @@
 		<dependency>
 			<groupId>us.codecraft</groupId>
 			<artifactId>webmagic-core</artifactId>
-			<version>0.7.3</version>
+			<version>${us.codecraft.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>us.codecraft</groupId>
 			<artifactId>webmagic-extension</artifactId>
-			<version>0.7.3</version>
+			<version>${us.codecraft.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>

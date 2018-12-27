@@ -15,3 +15,8 @@
    1. The @scheduled Lucene index database was updated once /5 minutes ago(@scheduled Lucene索引数据库5分钟更新一次)
    2. Mongodb is retrieved through keyword keyword search in combination with IK participle(Mongodb是通过关键词搜索结合IK分词检索的)
    ~~~
+   
+   Update on 2018/12/26 at 11:46
+   ~~~
+   1. Webmagic network spider(webmagic网络爬虫)
+   ~~~
